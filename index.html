@@ -2,107 +2,930 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Catatan Keuangan</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-    body { background: #f4f6f8; padding: 2rem; color: #333; }
-    h1 { text-align: center; color: #1976d2; margin-bottom: 1rem; }
-    .container { max-width: 600px; margin: auto; background: white; padding: 1.5rem; border-radius: 1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.1); position: relative; }
-    label { display: block; margin-top: 1rem; }
-    input, select { width: 100%; padding: 0.75rem; margin-top: 0.5rem; border: 1px solid #ccc; border-radius: 0.5rem; font-size: 1rem; }
-    button { background: #ff9800; color: white; padding: 0.75rem 1rem; border: none; border-radius: 999px; font-size: 1rem; position: fixed; bottom: 2rem; right: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); cursor: pointer; transition: background 0.3s; }
-    button:hover { background: #fb8c00; }
-    .riwayat, .ringkasan { margin-top: 2rem; }
-    .item { padding: 0.5rem 1rem; border-bottom: 1px solid #eee; }
-    .item span { float: right; }
-    .saldo-btn { background: #4caf50; color: white; display: inline-block; padding: 0.5rem 1rem; border-radius: 999px; margin-top: 1rem; font-weight: bold; box-shadow: 0 3px 6px rgba(0,0,0,0.1); }
-    .ringkasan p { margin: 0.5rem 0; }
+    :root {
+      --biru: #4285F4;
+      --merah: #EA4335;
+      --kuning: #FBBC05;
+      --hijau: #34A853;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #f7f9fc;
+      color: #333;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      text-align: center;
+      color: var(--biru);
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      font-weight: 500;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-top: 5px;
+    }
+
+    .fab {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: var(--biru);
+      color: white;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      font-size: 30px;
+      text-align: center;
+      line-height: 60px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .fab:hover {
+      background: #3367D6;
+    }
+
+    .riwayat-card {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px;
+      border-left: 5px solid;
+      border-radius: 8px;
+      background: #fff;
+      margin-bottom: 10px;
+      align-items: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .riwayat-card.pemasukan { border-color: var(--hijau); }
+    .riwayat-card.pengeluaran { border-color: var(--merah); }
+
+    .saldo-card {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      text-align: center;
+    }
+
+    .saldo-item {
+      background: linear-gradient(135deg, var(--biru), var(--hijau));
+      color: white;
+      border-radius: 10px;
+      padding: 15px;
+      font-size: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+
+    .saldo-item.kuning { background: linear-gradient(135deg, var(--kuning), orange); }
+    .saldo-item.merah { background: linear-gradient(135deg, var(--merah), crimson); }
+
+    canvas {
+      background: #fff;
+      border-radius: 10px;
+      padding: 10px;
+      margin-top: 20px;
+    }
+
+    .hemat-text {
+      text-align: center;
+      margin-top: 10px;
+      font-weight: bold;
+      color: var(--hijau);
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Catatan Keuangan</h1>
-    <label for="jenis">Pilih Opsi</label>
-    <select id="jenis">
-      <option value="pemasukan">Pemasukan</option>
-      <option value="pengeluaran">Pengeluaran</option>
-    </select>
-    <label for="tanggal">Tanggal</label>
-    <input type="date" id="tanggal" />
-    <label for="nominal">Nominal</label>
-    <input type="text" id="nominal" placeholder="Contoh: 10.000" />
 
-    <div class="riwayat" id="riwayat"></div>
-    <div class="ringkasan">
-      <div class="saldo-btn" id="saldo">Saldo: Rp 0</div>
-      <p id="bulanIni">Bulan ini: Rp 0</p>
-      <p id="bulanLalu">Bulan lalu: Rp 0</p>
-      <p id="hemat">Yey... Kamu hemat 0%</p>
+  <div class="container">
+    <div class="card">
+      <h2>Catatan Keuangan</h2>
+      <div class="form-group">
+        <label for="tipe">Pilih Opsi</label>
+        <select id="tipe">
+          <option value="pemasukan">Pemasukan</option>
+          <option value="pengeluaran">Pengeluaran</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="tanggal">Tanggal</label>
+        <input type="date" id="tanggal">
+      </div>
+
+      <div class="form-group">
+        <label for="nominal">Nominal</label>
+        <input type="text" id="nominal" placeholder="Misal: 10000">
+      </div>
     </div>
+
+    <div class="card saldo-card">
+      <div class="saldo-item">Saldo<br><span id="saldo">Rp 0</span></div>
+      <div class="saldo-item kuning">Bulan Ini<br><span id="bulanIni">Rp 0</span></div>
+      <div class="saldo-item merah">Bulan Lalu<br><span id="bulanKemarin">Rp 0</span></div>
+    </div>
+
+    <div class="hemat-text" id="hemat">Yey... Kamu hemat 0%</div>
+
+    <div class="card">
+      <h3>Riwayat</h3>
+      <div id="listRiwayat"></div>
+    </div>
+
+    <canvas id="grafikKeuangan" height="200"></canvas>
   </div>
 
-  <button onclick="catatTransaksi()">+ Catat</button>
+  <div class="fab" onclick="tambahCatatan()">+</div>
 
   <script>
-    let data = [];
+    const listRiwayat = document.getElementById('listRiwayat');
+    const saldoEl = document.getElementById('saldo');
+    const bulanIniEl = document.getElementById('bulanIni');
+    const bulanKemarinEl = document.getElementById('bulanKemarin');
+    const hematEl = document.getElementById('hemat');
+    let riwayatData = JSON.parse(localStorage.getItem('dataKeuangan') || '[]');
+    let chart = null;
 
-    function formatRupiah(angka) {
-      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(angka);
+    function formatRupiah(num) {
+      return parseInt(num).toLocaleString("id-ID");
     }
 
-    function parseNominal(nominal) {
-      return parseInt(nominal.replace(/[^0-9]/g, '')) || 0;
+    function simpanData() {
+      localStorage.setItem('dataKeuangan', JSON.stringify(riwayatData));
     }
 
-    function catatTransaksi() {
-      const jenis = document.getElementById('jenis').value;
+    function tambahCatatan() {
+      const tipe = document.getElementById('tipe').value;
       const tanggal = document.getElementById('tanggal').value;
-      const nominalText = document.getElementById('nominal').value;
-      const nominal = parseNominal(nominalText);
+      const nominal = parseInt(document.getElementById('nominal').value.replace(/\./g, ''));
 
-      if (!tanggal || nominal <= 0) return alert("Lengkapi data dengan benar!");
+      if (!tanggal || isNaN(nominal)) {
+        alert("Isi tanggal dan nominal dengan benar.");
+        return;
+      }
 
-      data.push({ jenis, tanggal, nominal });
-      render();
+      riwayatData.push({ tipe, tanggal, nominal });
+      simpanData();
+      tampilkanSemua();
       document.getElementById('nominal').value = "";
     }
 
-    function render() {
-      const riwayat = document.getElementById('riwayat');
-      riwayat.innerHTML = "";
-      let saldo = 0;
-      let bulanIni = 0, bulanLalu = 0;
+    function tampilkanSemua() {
+      tampilkanRiwayat();
+      tampilkanRingkasan();
+      tampilkanGrafik();
+    }
 
+    function tampilkanRiwayat() {
+      listRiwayat.innerHTML = "";
+      riwayatData.slice().reverse().forEach(item => {
+        const card = document.createElement('div');
+        card.className = `riwayat-card ${item.tipe}`;
+        card.innerHTML = `
+          <div>${item.tipe === 'pemasukan' ? '⬆️' : '⬇️'} ${item.tipe}</div>
+          <div>${new Date(item.tanggal).toLocaleDateString('id-ID')}</div>
+          <div>Rp ${formatRupiah(item.nominal)}</div>
+        `;
+        listRiwayat.appendChild(card);
+      });
+    }
+
+    function tampilkanRingkasan() {
+      let saldo = 0, bulanIni = 0, bulanKemarin = 0;
       const now = new Date();
-      const bulanSekarang = now.getMonth();
-      const tahunSekarang = now.getFullYear();
+      const bulan = now.getMonth(), tahun = now.getFullYear();
 
-      data.forEach(d => {
-        const tgl = new Date(d.tanggal);
-        const teks = \`\${d.jenis === "pengeluaran" ? "Pengeluaran" : "Pemasukan"} \${tgl.toLocaleDateString("id-ID")} <span>\${formatRupiah(d.nominal)}</span>\`;
-        const div = document.createElement("div");
-        div.className = "item";
-        div.innerHTML = teks;
-        riwayat.appendChild(div);
-
-        saldo += d.jenis === "pemasukan" ? d.nominal : -d.nominal;
-
-        if (tgl.getMonth() === bulanSekarang && tgl.getFullYear() === tahunSekarang) {
-          bulanIni += d.jenis === "pengeluaran" ? d.nominal : 0;
-        } else if (tgl.getMonth() === bulanSekarang - 1 && tgl.getFullYear() === tahunSekarang) {
-          bulanLalu += d.jenis === "pengeluaran" ? d.nominal : 0;
+      riwayatData.forEach(d => {
+        const t = new Date(d.tanggal);
+        const nominal = d.tipe === 'pemasukan' ? d.nominal : -d.nominal;
+        saldo += nominal;
+        if (t.getFullYear() === tahun) {
+          if (t.getMonth() === bulan) bulanIni += nominal;
+          else if (t.getMonth() === bulan - 1) bulanKemarin += nominal;
         }
       });
 
-      document.getElementById('saldo').textContent = "Saldo: " + formatRupiah(saldo);
-      document.getElementById('bulanIni').textContent = "Bulan ini: " + formatRupiah(bulanIni);
-      document.getElementById('bulanLalu').textContent = "Bulan lalu: " + formatRupiah(bulanLalu);
+      saldoEl.innerText = `Rp ${formatRupiah(saldo)}`;
+      bulanIniEl.innerText = `Rp ${formatRupiah(bulanIni)}`;
+      bulanKemarinEl.innerText = `Rp ${formatRupiah(bulanKemarin)}`;
 
-      const hemat = bulanLalu > 0 ? Math.round((1 - (bulanIni / bulanLalu)) * 100) : 100;
-      const hematRp = bulanLalu - bulanIni;
-      document.getElementById('hemat').textContent = \`Yey... Kamu hemat \${hemat}% atau \${formatRupiah(hematRp)}.\`;
+      const selisih = bulanIni - bulanKemarin;
+      const persen = bulanKemarin !== 0 ? (selisih / bulanKemarin) * 100 : 100;
+      hematEl.innerText = `Yey... Kamu hemat ${Math.round(persen)}% atau Rp ${formatRupiah(selisih)}.`;
     }
+
+    function tampilkanGrafik() {
+      const bulanan = {};
+      riwayatData.forEach(item => {
+        const ym = item.tanggal.slice(0,7);
+        if (!bulanan[ym]) bulanan[ym] = { pemasukan: 0, pengeluaran: 0 };
+        bulanan[ym][item.tipe] += item.nominal;
+      });
+
+      const labels = Object.keys(bulanan).sort();
+      const dataPemasukan = labels.map(k => bulanan[k].pemasukan);
+      const dataPengeluaran = labels.map(k => bulanan[k].pengeluaran);
+
+      const ctx = document.getElementById('grafikKeuangan').getContext('2d');
+      if (chart) chart.destroy();
+
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels.map(l => {
+            const [y, m] = l.split("-");
+            return `${m}/${y}`;
+          }),
+          datasets: [
+            {
+              label: 'Pemasukan',
+              data: dataPemasukan,
+              backgroundColor: '#34A853'
+            },
+            {
+              label: 'Pengeluaran',
+              data: dataPengeluaran,
+              backgroundColor: '#EA4335'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'top' }
+          },
+          scales: {
+            y: {
+              ticks: {
+                callback: value => 'Rp ' + formatRupiah(value)
+              }
+            }
+          }
+        }
+      });
+    }
+
+    document.getElementById('nominal').addEventListener('input', function(e) {
+      let value = e.target.value.replace(/\D/g, "");
+      e.target.value = value ? formatRupiah(value) : "";
+    });
+
+    tampilkanSemua();
+  </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Catatan Keuangan</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --biru: #4285F4;
+      --merah: #EA4335;
+      --kuning: #FBBC05;
+      --hijau: #34A853;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #f7f9fc;
+      color: #333;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      text-align: center;
+      color: var(--biru);
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      font-weight: 500;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-top: 5px;
+    }
+
+    .fab {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: var(--biru);
+      color: white;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      font-size: 30px;
+      text-align: center;
+      line-height: 60px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .fab:hover {
+      background: #3367D6;
+    }
+
+    .riwayat-card {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px;
+      border-left: 5px solid;
+      border-radius: 8px;
+      background: #fff;
+      margin-bottom: 10px;
+      align-items: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .riwayat-card.pemasukan { border-color: var(--hijau); }
+    .riwayat-card.pengeluaran { border-color: var(--merah); }
+
+    .saldo-card {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      text-align: center;
+    }
+
+    .saldo-item {
+      background: linear-gradient(135deg, var(--biru), var(--hijau));
+      color: white;
+      border-radius: 10px;
+      padding: 15px;
+      font-size: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+
+    .saldo-item.kuning { background: linear-gradient(135deg, var(--kuning), orange); }
+    .saldo-item.merah { background: linear-gradient(135deg, var(--merah), crimson); }
+
+    canvas {
+      background: #fff;
+      border-radius: 10px;
+      padding: 10px;
+      margin-top: 20px;
+    }
+
+    .hemat-text {
+      text-align: center;
+      margin-top: 10px;
+      font-weight: bold;
+      color: var(--hijau);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="card">
+      <h2>Catatan Keuangan</h2>
+      <div class="form-group">
+        <label for="tipe">Pilih Opsi</label>
+        <select id="tipe">
+          <option value="pemasukan">Pemasukan</option>
+          <option value="pengeluaran">Pengeluaran</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="tanggal">Tanggal</label>
+        <input type="date" id="tanggal">
+      </div>
+
+      <div class="form-group">
+        <label for="nominal">Nominal</label>
+        <input type="text" id="nominal" placeholder="Misal: 10000">
+      </div>
+    </div>
+
+    <div class="card saldo-card">
+      <div class="saldo-item">Saldo<br><span id="saldo">Rp 0</span></div>
+      <div class="saldo-item kuning">Bulan Ini<br><span id="bulanIni">Rp 0</span></div>
+      <div class="saldo-item merah">Bulan Lalu<br><span id="bulanKemarin">Rp 0</span></div>
+    </div>
+
+    <div class="hemat-text" id="hemat">Yey... Kamu hemat 0%</div>
+
+    <div class="card">
+      <h3>Riwayat</h3>
+      <div id="listRiwayat"></div>
+    </div>
+
+    <canvas id="grafikKeuangan" height="200"></canvas>
+  </div>
+
+  <div class="fab" onclick="tambahCatatan()">+</div>
+
+  <script>
+    const listRiwayat = document.getElementById('listRiwayat');
+    const saldoEl = document.getElementById('saldo');
+    const bulanIniEl = document.getElementById('bulanIni');
+    const bulanKemarinEl = document.getElementById('bulanKemarin');
+    const hematEl = document.getElementById('hemat');
+    let riwayatData = JSON.parse(localStorage.getItem('dataKeuangan') || '[]');
+    let chart = null;
+
+    function formatRupiah(num) {
+      return parseInt(num).toLocaleString("id-ID");
+    }
+
+    function simpanData() {
+      localStorage.setItem('dataKeuangan', JSON.stringify(riwayatData));
+    }
+
+    function tambahCatatan() {
+      const tipe = document.getElementById('tipe').value;
+      const tanggal = document.getElementById('tanggal').value;
+      const nominal = parseInt(document.getElementById('nominal').value.replace(/\./g, ''));
+
+      if (!tanggal || isNaN(nominal)) {
+        alert("Isi tanggal dan nominal dengan benar.");
+        return;
+      }
+
+      riwayatData.push({ tipe, tanggal, nominal });
+      simpanData();
+      tampilkanSemua();
+      document.getElementById('nominal').value = "";
+    }
+
+    function tampilkanSemua() {
+      tampilkanRiwayat();
+      tampilkanRingkasan();
+      tampilkanGrafik();
+    }
+
+    function tampilkanRiwayat() {
+      listRiwayat.innerHTML = "";
+      riwayatData.slice().reverse().forEach(item => {
+        const card = document.createElement('div');
+        card.className = `riwayat-card ${item.tipe}`;
+        card.innerHTML = `
+          <div>${item.tipe === 'pemasukan' ? '⬆️' : '⬇️'} ${item.tipe}</div>
+          <div>${new Date(item.tanggal).toLocaleDateString('id-ID')}</div>
+          <div>Rp ${formatRupiah(item.nominal)}</div>
+        `;
+        listRiwayat.appendChild(card);
+      });
+    }
+
+    function tampilkanRingkasan() {
+      let saldo = 0, bulanIni = 0, bulanKemarin = 0;
+      const now = new Date();
+      const bulan = now.getMonth(), tahun = now.getFullYear();
+
+      riwayatData.forEach(d => {
+        const t = new Date(d.tanggal);
+        const nominal = d.tipe === 'pemasukan' ? d.nominal : -d.nominal;
+        saldo += nominal;
+        if (t.getFullYear() === tahun) {
+          if (t.getMonth() === bulan) bulanIni += nominal;
+          else if (t.getMonth() === bulan - 1) bulanKemarin += nominal;
+        }
+      });
+
+      saldoEl.innerText = `Rp ${formatRupiah(saldo)}`;
+      bulanIniEl.innerText = `Rp ${formatRupiah(bulanIni)}`;
+      bulanKemarinEl.innerText = `Rp ${formatRupiah(bulanKemarin)}`;
+
+      const selisih = bulanIni - bulanKemarin;
+      const persen = bulanKemarin !== 0 ? (selisih / bulanKemarin) * 100 : 100;
+      hematEl.innerText = `Yey... Kamu hemat ${Math.round(persen)}% atau Rp ${formatRupiah(selisih)}.`;
+    }
+
+    function tampilkanGrafik() {
+      const bulanan = {};
+      riwayatData.forEach(item => {
+        const ym = item.tanggal.slice(0,7);
+        if (!bulanan[ym]) bulanan[ym] = { pemasukan: 0, pengeluaran: 0 };
+        bulanan[ym][item.tipe] += item.nominal;
+      });
+
+      const labels = Object.keys(bulanan).sort();
+      const dataPemasukan = labels.map(k => bulanan[k].pemasukan);
+      const dataPengeluaran = labels.map(k => bulanan[k].pengeluaran);
+
+      const ctx = document.getElementById('grafikKeuangan').getContext('2d');
+      if (chart) chart.destroy();
+
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels.map(l => {
+            const [y, m] = l.split("-");
+            return `${m}/${y}`;
+          }),
+          datasets: [
+            {
+              label: 'Pemasukan',
+              data: dataPemasukan,
+              backgroundColor: '#34A853'
+            },
+            {
+              label: 'Pengeluaran',
+              data: dataPengeluaran,
+              backgroundColor: '#EA4335'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'top' }
+          },
+          scales: {
+            y: {
+              ticks: {
+                callback: value => 'Rp ' + formatRupiah(value)
+              }
+            }
+          }
+        }
+      });
+    }
+
+    document.getElementById('nominal').addEventListener('input', function(e) {
+      let value = e.target.value.replace(/\D/g, "");
+      e.target.value = value ? formatRupiah(value) : "";
+    });
+
+    tampilkanSemua();
+  </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Catatan Keuangan</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --biru: #4285F4;
+      --merah: #EA4335;
+      --kuning: #FBBC05;
+      --hijau: #34A853;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #f7f9fc;
+      color: #333;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      text-align: center;
+      color: var(--biru);
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      font-weight: 500;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-top: 5px;
+    }
+
+    .fab {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: var(--biru);
+      color: white;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      font-size: 30px;
+      text-align: center;
+      line-height: 60px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .fab:hover {
+      background: #3367D6;
+    }
+
+    .riwayat-card {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px;
+      border-left: 5px solid;
+      border-radius: 8px;
+      background: #fff;
+      margin-bottom: 10px;
+      align-items: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .riwayat-card.pemasukan { border-color: var(--hijau); }
+    .riwayat-card.pengeluaran { border-color: var(--merah); }
+
+    .saldo-card {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      text-align: center;
+    }
+
+    .saldo-item {
+      background: linear-gradient(135deg, var(--biru), var(--hijau));
+      color: white;
+      border-radius: 10px;
+      padding: 15px;
+      font-size: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+
+    .saldo-item.kuning { background: linear-gradient(135deg, var(--kuning), orange); }
+    .saldo-item.merah { background: linear-gradient(135deg, var(--merah), crimson); }
+
+    canvas {
+      background: #fff;
+      border-radius: 10px;
+      padding: 10px;
+      margin-top: 20px;
+    }
+
+    .hemat-text {
+      text-align: center;
+      margin-top: 10px;
+      font-weight: bold;
+      color: var(--hijau);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="card">
+      <h2>Catatan Keuangan</h2>
+      <div class="form-group">
+        <label for="tipe">Pilih Opsi</label>
+        <select id="tipe">
+          <option value="pemasukan">Pemasukan</option>
+          <option value="pengeluaran">Pengeluaran</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="tanggal">Tanggal</label>
+        <input type="date" id="tanggal">
+      </div>
+
+      <div class="form-group">
+        <label for="nominal">Nominal</label>
+        <input type="text" id="nominal" placeholder="Misal: 10000">
+      </div>
+    </div>
+
+    <div class="card saldo-card">
+      <div class="saldo-item">Saldo<br><span id="saldo">Rp 0</span></div>
+      <div class="saldo-item kuning">Bulan Ini<br><span id="bulanIni">Rp 0</span></div>
+      <div class="saldo-item merah">Bulan Lalu<br><span id="bulanKemarin">Rp 0</span></div>
+    </div>
+
+    <div class="hemat-text" id="hemat">Yey... Kamu hemat 0%</div>
+
+    <div class="card">
+      <h3>Riwayat</h3>
+      <div id="listRiwayat"></div>
+    </div>
+
+    <canvas id="grafikKeuangan" height="200"></canvas>
+  </div>
+
+  <div class="fab" onclick="tambahCatatan()">+</div>
+
+  <script>
+    const listRiwayat = document.getElementById('listRiwayat');
+    const saldoEl = document.getElementById('saldo');
+    const bulanIniEl = document.getElementById('bulanIni');
+    const bulanKemarinEl = document.getElementById('bulanKemarin');
+    const hematEl = document.getElementById('hemat');
+    let riwayatData = JSON.parse(localStorage.getItem('dataKeuangan') || '[]');
+    let chart = null;
+
+    function formatRupiah(num) {
+      return parseInt(num).toLocaleString("id-ID");
+    }
+
+    function simpanData() {
+      localStorage.setItem('dataKeuangan', JSON.stringify(riwayatData));
+    }
+
+    function tambahCatatan() {
+      const tipe = document.getElementById('tipe').value;
+      const tanggal = document.getElementById('tanggal').value;
+      const nominal = parseInt(document.getElementById('nominal').value.replace(/\./g, ''));
+
+      if (!tanggal || isNaN(nominal)) {
+        alert("Isi tanggal dan nominal dengan benar.");
+        return;
+      }
+
+      riwayatData.push({ tipe, tanggal, nominal });
+      simpanData();
+      tampilkanSemua();
+      document.getElementById('nominal').value = "";
+    }
+
+    function tampilkanSemua() {
+      tampilkanRiwayat();
+      tampilkanRingkasan();
+      tampilkanGrafik();
+    }
+
+    function tampilkanRiwayat() {
+      listRiwayat.innerHTML = "";
+      riwayatData.slice().reverse().forEach(item => {
+        const card = document.createElement('div');
+        card.className = `riwayat-card ${item.tipe}`;
+        card.innerHTML = `
+          <div>${item.tipe === 'pemasukan' ? '⬆️' : '⬇️'} ${item.tipe}</div>
+          <div>${new Date(item.tanggal).toLocaleDateString('id-ID')}</div>
+          <div>Rp ${formatRupiah(item.nominal)}</div>
+        `;
+        listRiwayat.appendChild(card);
+      });
+    }
+
+    function tampilkanRingkasan() {
+      let saldo = 0, bulanIni = 0, bulanKemarin = 0;
+      const now = new Date();
+      const bulan = now.getMonth(), tahun = now.getFullYear();
+
+      riwayatData.forEach(d => {
+        const t = new Date(d.tanggal);
+        const nominal = d.tipe === 'pemasukan' ? d.nominal : -d.nominal;
+        saldo += nominal;
+        if (t.getFullYear() === tahun) {
+          if (t.getMonth() === bulan) bulanIni += nominal;
+          else if (t.getMonth() === bulan - 1) bulanKemarin += nominal;
+        }
+      });
+
+      saldoEl.innerText = `Rp ${formatRupiah(saldo)}`;
+      bulanIniEl.innerText = `Rp ${formatRupiah(bulanIni)}`;
+      bulanKemarinEl.innerText = `Rp ${formatRupiah(bulanKemarin)}`;
+
+      const selisih = bulanIni - bulanKemarin;
+      const persen = bulanKemarin !== 0 ? (selisih / bulanKemarin) * 100 : 100;
+      hematEl.innerText = `Yey... Kamu hemat ${Math.round(persen)}% atau Rp ${formatRupiah(selisih)}.`;
+    }
+
+    function tampilkanGrafik() {
+      const bulanan = {};
+      riwayatData.forEach(item => {
+        const ym = item.tanggal.slice(0,7);
+        if (!bulanan[ym]) bulanan[ym] = { pemasukan: 0, pengeluaran: 0 };
+        bulanan[ym][item.tipe] += item.nominal;
+      });
+
+      const labels = Object.keys(bulanan).sort();
+      const dataPemasukan = labels.map(k => bulanan[k].pemasukan);
+      const dataPengeluaran = labels.map(k => bulanan[k].pengeluaran);
+
+      const ctx = document.getElementById('grafikKeuangan').getContext('2d');
+      if (chart) chart.destroy();
+
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels.map(l => {
+            const [y, m] = l.split("-");
+            return `${m}/${y}`;
+          }),
+          datasets: [
+            {
+              label: 'Pemasukan',
+              data: dataPemasukan,
+              backgroundColor: '#34A853'
+            },
+            {
+              label: 'Pengeluaran',
+              data: dataPengeluaran,
+              backgroundColor: '#EA4335'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'top' }
+          },
+          scales: {
+            y: {
+              ticks: {
+                callback: value => 'Rp ' + formatRupiah(value)
+              }
+            }
+          }
+        }
+      });
+    }
+
+    document.getElementById('nominal').addEventListener('input', function(e) {
+      let value = e.target.value.replace(/\D/g, "");
+      e.target.value = value ? formatRupiah(value) : "";
+    });
+
+    tampilkanSemua();
   </script>
 </body>
 </html>
