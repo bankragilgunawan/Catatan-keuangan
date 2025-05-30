@@ -12,45 +12,121 @@
       --merah: #EA4335;
       --kuning: #FBBC05;
       --hijau: #34A853;
+      --bg: #f7f9fc;
+      --text: #333;
+      --card: #fff;
+      --shadow: rgba(0,0,0,0.08);
     }
+
+    body.dark {
+      --bg: #1e1e1e;
+      --text: #eee;
+      --card: #2c2c2c;
+      --shadow: rgba(255,255,255,0.05);
+    }
+
     * {
       box-sizing: border-box;
       font-family: 'Roboto', sans-serif;
     }
+
     body {
       margin: 0;
-      background: #f7f9fc;
-      color: #333;
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.3s, color 0.3s;
     }
+
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: var(--biru);
+      color: white;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      z-index: 1001;
+      font-size: 14px;
+      box-shadow: 0 4px 10px var(--shadow);
+      transition: background 0.3s;
+    }
+
+    .theme-toggle:hover {
+      background: #3367D6;
+    }
+
     .container {
       max-width: 700px;
       margin: 0 auto;
-      padding: 20px;
+      padding: 80px 20px 20px;
+      opacity: 0;
+      transform: translateY(50px);
+      animation: fadeInUp 1s ease-out forwards;
     }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
     .card {
-      background: white;
+      background: var(--card);
       border-radius: 12px;
       padding: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      box-shadow: 0 4px 12px var(--shadow);
       margin-bottom: 20px;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.6s ease-out;
     }
-    h2 {
+
+    .card.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    h2, h3 {
       text-align: center;
       color: var(--biru);
+      margin: 0;
     }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: var(--biru);
+      margin-bottom: 20px;
+    }
+
+    .logo span {
+      margin-left: 10px;
+    }
+
     .form-group {
       margin-bottom: 15px;
     }
+
     label {
       font-weight: 500;
     }
+
     input, select {
       width: 100%;
       padding: 10px;
       border: 1px solid #ccc;
       border-radius: 8px;
       margin-top: 5px;
+      background: var(--bg);
+      color: var(--text);
     }
+
     .fab {
       position: fixed;
       bottom: 30px;
@@ -66,29 +142,39 @@
       box-shadow: 0 6px 16px rgba(0,0,0,0.2);
       cursor: pointer;
       transition: 0.3s;
+      z-index: 1000;
     }
+
+    .fab:active {
+      transform: scale(1.1);
+    }
+
     .fab:hover {
       background: #3367D6;
     }
+
     .riwayat-card {
       display: flex;
       justify-content: space-between;
       padding: 12px;
       border-left: 5px solid;
       border-radius: 8px;
-      background: #fff;
+      background: var(--card);
       margin-bottom: 10px;
       align-items: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      box-shadow: 0 2px 6px var(--shadow);
     }
+
     .riwayat-card.pemasukan { border-color: var(--hijau); }
     .riwayat-card.pengeluaran { border-color: var(--merah); }
+
     .saldo-card {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 10px;
       text-align: center;
     }
+
     .saldo-item {
       background: linear-gradient(135deg, var(--biru), var(--hijau));
       color: white;
@@ -96,18 +182,27 @@
       padding: 15px;
       font-size: 16px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      transform: scale(1);
+      transition: transform 0.2s ease;
     }
+
+    .saldo-item:hover {
+      transform: scale(1.05);
+    }
+
     .saldo-item.kuning { background: linear-gradient(135deg, var(--kuning), orange); }
     .saldo-item.merah { background: linear-gradient(135deg, var(--merah), crimson); }
+
     canvas {
-      background: #fff;
+      background: var(--card);
       border-radius: 10px;
       padding: 10px;
       margin-top: 20px;
     }
+
     .hemat-text {
       text-align: center;
-      margin-top: 10px;
+      margin: 10px 0;
       font-weight: bold;
       color: var(--hijau);
     }
@@ -115,15 +210,14 @@
 </head>
 <body>
 
+  <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+
   <div class="container">
+    <div class="logo">
+      📒 <span>Catatan Keuangan</span>
+    </div>
+
     <div class="card">
-      <header style="text-align: center; padding: 1rem;">
-        <img 
-          src="https://bankragilgunawan.wordpress.com/wp-content/uploads/2025/05/file_000000007e0861f5909f6ce569ce19e88952444468595448544.png" 
-          alt="Catatan Keuangan" 
-          style="max-width: 200px; width: 100%; height: auto;" 
-        />
-      </header>
       <div class="form-group">
         <label for="tipe">Pilih Opsi</label>
         <select id="tipe">
@@ -146,9 +240,9 @@
       <div class="saldo-item kuning">Bulan Ini<br><span id="bulanIni">Rp 0</span></div>
       <div class="saldo-item merah">Bulan Lalu<br><span id="bulanKemarin">Rp 0</span></div>
     </div>
-<div class="card">
+
     <div class="hemat-text" id="hemat">Yey... Kamu hemat 0%</div>
-</div>
+
     <div class="card">
       <h3>Riwayat</h3>
       <div class="form-group">
@@ -166,13 +260,29 @@
   <div class="fab" onclick="tambahCatatan()">+</div>
 
   <script>
+    const body = document.body;
+    const themeToggle = document.querySelector('.theme-toggle');
+
+    function setTheme(dark) {
+      body.classList.toggle('dark', dark);
+      themeToggle.innerText = dark ? '☀️' : '🌙';
+      localStorage.setItem('temaGelap', dark ? '1' : '0');
+    }
+
+    function toggleTheme() {
+      setTheme(!body.classList.contains('dark'));
+    }
+
+    if (localStorage.getItem('temaGelap') === '1') {
+      setTheme(true);
+    }
+
     const listRiwayat = document.getElementById('listRiwayat');
     const saldoEl = document.getElementById('saldo');
     const bulanIniEl = document.getElementById('bulanIni');
     const bulanKemarinEl = document.getElementById('bulanKemarin');
     const hematEl = document.getElementById('hemat');
     const filterBulanEl = document.getElementById('filter-bulan');
-
     let riwayatData = JSON.parse(localStorage.getItem('dataKeuangan') || '[]');
     let chart = null;
 
@@ -211,16 +321,13 @@
       listRiwayat.innerHTML = "";
       const filter = filterBulanEl.value;
       let dataTampil = riwayatData.slice().reverse();
-
       if (filter !== "all") {
         dataTampil = dataTampil.filter(item => item.tanggal.startsWith(filter));
       }
-
       if (dataTampil.length === 0) {
         listRiwayat.innerHTML = "<p style='text-align:center'>Tidak ada data</p>";
         return;
       }
-
       dataTampil.forEach(item => {
         const card = document.createElement('div');
         card.className = `riwayat-card ${item.tipe}`;
@@ -250,7 +357,6 @@
       let saldo = 0, bulanIni = 0, bulanKemarin = 0;
       const now = new Date();
       const bulan = now.getMonth(), tahun = now.getFullYear();
-
       riwayatData.forEach(d => {
         const t = new Date(d.tanggal);
         const nominal = d.tipe === 'pemasukan' ? d.nominal : -d.nominal;
@@ -260,11 +366,9 @@
           else if (t.getMonth() === bulan - 1) bulanKemarin += nominal;
         }
       });
-
       saldoEl.innerText = `Rp ${formatRupiah(saldo)}`;
       bulanIniEl.innerText = `Rp ${formatRupiah(bulanIni)}`;
       bulanKemarinEl.innerText = `Rp ${formatRupiah(bulanKemarin)}`;
-
       const selisih = bulanIni - bulanKemarin;
       const persen = bulanKemarin !== 0 ? (selisih / bulanKemarin) * 100 : 100;
       hematEl.innerText = `Yey... Kamu hemat ${Math.round(persen)}% atau Rp ${formatRupiah(selisih)}.`;
@@ -277,14 +381,11 @@
         if (!bulanan[ym]) bulanan[ym] = { pemasukan: 0, pengeluaran: 0 };
         bulanan[ym][item.tipe] += item.nominal;
       });
-
       const labels = Object.keys(bulanan).sort();
       const dataPemasukan = labels.map(k => bulanan[k].pemasukan);
       const dataPengeluaran = labels.map(k => bulanan[k].pengeluaran);
-
       const ctx = document.getElementById('grafikKeuangan').getContext('2d');
       if (chart) chart.destroy();
-
       chart = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -325,6 +426,16 @@
       let value = e.target.value.replace(/\D/g, "");
       e.target.value = value ? formatRupiah(value) : "";
     });
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('show');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.card').forEach(el => observer.observe(el));
 
     tampilkanSemua();
   </script>
