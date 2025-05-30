@@ -13,24 +13,20 @@
       --kuning: #FBBC05;
       --hijau: #34A853;
     }
-
     * {
       box-sizing: border-box;
       font-family: 'Roboto', sans-serif;
     }
-
     body {
       margin: 0;
       background: #f7f9fc;
       color: #333;
     }
-
     .container {
       max-width: 700px;
       margin: 0 auto;
       padding: 20px;
     }
-
     .card {
       background: white;
       border-radius: 12px;
@@ -38,20 +34,16 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.08);
       margin-bottom: 20px;
     }
-
     h2 {
       text-align: center;
       color: var(--biru);
     }
-
     .form-group {
       margin-bottom: 15px;
     }
-
     label {
       font-weight: 500;
     }
-
     input, select {
       width: 100%;
       padding: 10px;
@@ -59,7 +51,6 @@
       border-radius: 8px;
       margin-top: 5px;
     }
-
     .fab {
       position: fixed;
       bottom: 30px;
@@ -76,11 +67,9 @@
       cursor: pointer;
       transition: 0.3s;
     }
-
     .fab:hover {
       background: #3367D6;
     }
-
     .riwayat-card {
       display: flex;
       justify-content: space-between;
@@ -92,17 +81,14 @@
       align-items: center;
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
-
     .riwayat-card.pemasukan { border-color: var(--hijau); }
     .riwayat-card.pengeluaran { border-color: var(--merah); }
-
     .saldo-card {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 10px;
       text-align: center;
     }
-
     .saldo-item {
       background: linear-gradient(135deg, var(--biru), var(--hijau));
       color: white;
@@ -111,17 +97,14 @@
       font-size: 16px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     }
-
     .saldo-item.kuning { background: linear-gradient(135deg, var(--kuning), orange); }
     .saldo-item.merah { background: linear-gradient(135deg, var(--merah), crimson); }
-
     canvas {
       background: #fff;
       border-radius: 10px;
       padding: 10px;
       margin-top: 20px;
     }
-
     .hemat-text {
       text-align: center;
       margin-top: 10px;
@@ -134,13 +117,13 @@
 
   <div class="container">
     <div class="card">
-<header style="text-align: center; padding: 1rem;">
-  <img 
-    src="https://bankragilgunawan.wordpress.com/wp-content/uploads/2025/05/file_000000007e0861f5909f6ce569ce19e88952444468595448544.png" 
-    alt="Catatan Keuangan" 
-    style="max-width: 200px; width: 100%; height: auto;" 
-  />
-</header>
+      <header style="text-align: center; padding: 1rem;">
+        <img 
+          src="https://bankragilgunawan.wordpress.com/wp-content/uploads/2025/05/file_000000007e0861f5909f6ce569ce19e88952444468595448544.png" 
+          alt="Catatan Keuangan" 
+          style="max-width: 200px; width: 100%; height: auto;" 
+        />
+      </header>
       <div class="form-group">
         <label for="tipe">Pilih Opsi</label>
         <select id="tipe">
@@ -148,12 +131,10 @@
           <option value="pengeluaran">Pengeluaran</option>
         </select>
       </div>
-
       <div class="form-group">
         <label for="tanggal">Tanggal</label>
         <input type="date" id="tanggal">
       </div>
-
       <div class="form-group">
         <label for="nominal">Nominal</label>
         <input type="text" id="nominal" placeholder="Misal: 10000">
@@ -165,12 +146,18 @@
       <div class="saldo-item kuning">Bulan Ini<br><span id="bulanIni">Rp 0</span></div>
       <div class="saldo-item merah">Bulan Lalu<br><span id="bulanKemarin">Rp 0</span></div>
     </div>
-
+<div class="card">
     <div class="hemat-text" id="hemat">Yey... Kamu hemat 0%</div>
-
+</div>
     <div class="card">
       <h3>Riwayat</h3>
-      <div id="listRiwayat"></div>
+      <div class="form-group">
+        <label for="filter-bulan">Filter Bulan:</label>
+        <select id="filter-bulan" onchange="tampilkanRiwayat()">
+          <option value="all">Semua</option>
+        </select>
+      </div>
+      <div id="listRiwayat" style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 1rem; border-radius: 10px;"></div>
     </div>
 
     <canvas id="grafikKeuangan" height="200"></canvas>
@@ -184,6 +171,8 @@
     const bulanIniEl = document.getElementById('bulanIni');
     const bulanKemarinEl = document.getElementById('bulanKemarin');
     const hematEl = document.getElementById('hemat');
+    const filterBulanEl = document.getElementById('filter-bulan');
+
     let riwayatData = JSON.parse(localStorage.getItem('dataKeuangan') || '[]');
     let chart = null;
 
@@ -212,6 +201,7 @@
     }
 
     function tampilkanSemua() {
+      isiDropdownFilter();
       tampilkanRiwayat();
       tampilkanRingkasan();
       tampilkanGrafik();
@@ -219,7 +209,19 @@
 
     function tampilkanRiwayat() {
       listRiwayat.innerHTML = "";
-      riwayatData.slice().reverse().forEach(item => {
+      const filter = filterBulanEl.value;
+      let dataTampil = riwayatData.slice().reverse();
+
+      if (filter !== "all") {
+        dataTampil = dataTampil.filter(item => item.tanggal.startsWith(filter));
+      }
+
+      if (dataTampil.length === 0) {
+        listRiwayat.innerHTML = "<p style='text-align:center'>Tidak ada data</p>";
+        return;
+      }
+
+      dataTampil.forEach(item => {
         const card = document.createElement('div');
         card.className = `riwayat-card ${item.tipe}`;
         card.innerHTML = `
@@ -228,6 +230,19 @@
           <div>Rp ${formatRupiah(item.nominal)}</div>
         `;
         listRiwayat.appendChild(card);
+      });
+    }
+
+    function isiDropdownFilter() {
+      const unikBulan = new Set(riwayatData.map(i => i.tanggal.slice(0,7)));
+      filterBulanEl.innerHTML = `<option value="all">Semua</option>`;
+      [...unikBulan].sort().reverse().forEach(b => {
+        const [y, m] = b.split("-");
+        const label = new Date(`${b}-01`).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+        const option = document.createElement("option");
+        option.value = b;
+        option.textContent = label;
+        filterBulanEl.appendChild(option);
       });
     }
 
