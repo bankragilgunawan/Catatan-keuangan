@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Catatan Keuangan</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
@@ -17,26 +17,22 @@
       --card: #fff;
       --shadow: rgba(0,0,0,0.08);
     }
-
     body.dark {
       --bg: #1e1e1e;
       --text: #eee;
       --card: #2c2c2c;
       --shadow: rgba(255,255,255,0.05);
     }
-
     * {
       box-sizing: border-box;
       font-family: 'Roboto', sans-serif;
     }
-
     body {
       margin: 0;
       background: var(--bg);
       color: var(--text);
       transition: background 0.3s, color 0.3s;
     }
-
     .theme-toggle {
       position: fixed;
       top: 20px;
@@ -52,10 +48,7 @@
       box-shadow: 0 4px 10px var(--shadow);
       transition: background 0.3s;
     }
-
-    .theme-toggle:hover {
-      background: #3367D6;
-    }
+    .theme-toggle:hover { background: #3367D6; }
 
     .container {
       max-width: 700px;
@@ -65,14 +58,9 @@
       transform: translateY(50px);
       animation: fadeInUp 1s ease-out forwards;
     }
-
     @keyframes fadeInUp {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      to { opacity: 1; transform: translateY(0); }
     }
-
     .card {
       background: var(--card);
       border-radius: 12px;
@@ -83,20 +71,12 @@
       transform: translateY(30px);
       transition: all 0.6s ease-out;
     }
-
-    .card.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    h2, h3 {
-      text-align: center;
-      color: var(--biru);
-      margin: 0;
-    }
+    .card.show { opacity: 1; transform: translateY(0); }
+    h2, h3 { text-align: center; color: var(--biru); margin: 0; }
 
     .logo {
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       font-size: 1.8rem;
@@ -104,19 +84,17 @@
       color: var(--biru);
       margin-bottom: 20px;
     }
-
-    .logo span {
-      margin-left: 10px;
+    .logo span { margin-left: 10px; }
+    .tanda-air {
+      font-size: 12px;
+      color: gray;
+      margin-top: 4px;
+      text-align: center;
+      opacity: 0.6;
     }
 
-    .form-group {
-      margin-bottom: 15px;
-    }
-
-    label {
-      font-weight: 500;
-    }
-
+    .form-group { margin-bottom: 15px; }
+    label { font-weight: 500; }
     input, select {
       width: 100%;
       padding: 10px;
@@ -144,14 +122,8 @@
       transition: 0.3s;
       z-index: 1000;
     }
-
-    .fab:active {
-      transform: scale(1.1);
-    }
-
-    .fab:hover {
-      background: #3367D6;
-    }
+    .fab:active { transform: scale(1.1); }
+    .fab:hover { background: #3367D6; }
 
     .riwayat-card {
       display: flex;
@@ -164,7 +136,6 @@
       align-items: center;
       box-shadow: 0 2px 6px var(--shadow);
     }
-
     .riwayat-card.pemasukan { border-color: var(--hijau); }
     .riwayat-card.pengeluaran { border-color: var(--merah); }
 
@@ -174,7 +145,6 @@
       gap: 10px;
       text-align: center;
     }
-
     .saldo-item {
       background: linear-gradient(135deg, var(--biru), var(--hijau));
       color: white;
@@ -185,11 +155,7 @@
       transform: scale(1);
       transition: transform 0.2s ease;
     }
-
-    .saldo-item:hover {
-      transform: scale(1.05);
-    }
-
+    .saldo-item:hover { transform: scale(1.05); }
     .saldo-item.kuning { background: linear-gradient(135deg, var(--kuning), orange); }
     .saldo-item.merah { background: linear-gradient(135deg, var(--merah), crimson); }
 
@@ -199,7 +165,6 @@
       padding: 10px;
       margin-top: 20px;
     }
-
     .hemat-text {
       text-align: center;
       margin: 10px 0;
@@ -209,12 +174,11 @@
   </style>
 </head>
 <body>
-
   <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
-
   <div class="container">
     <div class="logo">
       📒 <span>Catatan Keuangan</span>
+      <div class="tanda-air">by : bankragilgunawan@gmail.com</div>
     </div>
 
     <div class="card">
@@ -262,20 +226,15 @@
   <script>
     const body = document.body;
     const themeToggle = document.querySelector('.theme-toggle');
-
     function setTheme(dark) {
       body.classList.toggle('dark', dark);
       themeToggle.innerText = dark ? '☀️' : '🌙';
       localStorage.setItem('temaGelap', dark ? '1' : '0');
     }
-
     function toggleTheme() {
       setTheme(!body.classList.contains('dark'));
     }
-
-    if (localStorage.getItem('temaGelap') === '1') {
-      setTheme(true);
-    }
+    if (localStorage.getItem('temaGelap') === '1') setTheme(true);
 
     const listRiwayat = document.getElementById('listRiwayat');
     const saldoEl = document.getElementById('saldo');
@@ -283,40 +242,32 @@
     const bulanKemarinEl = document.getElementById('bulanKemarin');
     const hematEl = document.getElementById('hemat');
     const filterBulanEl = document.getElementById('filter-bulan');
-    let riwayatData = JSON.parse(localStorage.getItem('dataKeuangan') || '[]');
-    let chart = null;
 
+    let riwayatData = JSON.parse(localStorage.getItem('dataKeuangan') || '[]');
+    riwayatData = riwayatData.filter(i => i && i.tanggal && typeof i.tanggal === 'string');
+
+    let chart = null;
     function formatRupiah(num) {
       return parseInt(num).toLocaleString("id-ID");
     }
-
     function simpanData() {
       localStorage.setItem('dataKeuangan', JSON.stringify(riwayatData));
     }
-
     function tambahCatatan() {
       const tipe = document.getElementById('tipe').value;
       const tanggal = document.getElementById('tanggal').value;
       const nominal = parseInt(document.getElementById('nominal').value.replace(/\./g, ''));
-
       if (!tanggal || isNaN(nominal)) {
-        alert("Isi tanggal dan nominal dengan benar.");
-        return;
+        alert("Isi tanggal dan nominal dengan benar."); return;
       }
-
       riwayatData.push({ tipe, tanggal, nominal });
       simpanData();
       tampilkanSemua();
       document.getElementById('nominal').value = "";
     }
-
     function tampilkanSemua() {
-      isiDropdownFilter();
-      tampilkanRiwayat();
-      tampilkanRingkasan();
-      tampilkanGrafik();
+      isiDropdownFilter(); tampilkanRiwayat(); tampilkanRingkasan(); tampilkanGrafik();
     }
-
     function tampilkanRiwayat() {
       listRiwayat.innerHTML = "";
       const filter = filterBulanEl.value;
@@ -325,8 +276,7 @@
         dataTampil = dataTampil.filter(item => item.tanggal.startsWith(filter));
       }
       if (dataTampil.length === 0) {
-        listRiwayat.innerHTML = "<p style='text-align:center'>Tidak ada data</p>";
-        return;
+        listRiwayat.innerHTML = "<p style='text-align:center'>Tidak ada data</p>"; return;
       }
       dataTampil.forEach(item => {
         const card = document.createElement('div');
@@ -334,17 +284,18 @@
         card.innerHTML = `
           <div>${item.tipe === 'pemasukan' ? '⬆️' : '⬇️'} ${item.tipe}</div>
           <div>${new Date(item.tanggal).toLocaleDateString('id-ID')}</div>
-          <div>Rp ${formatRupiah(item.nominal)}</div>
-        `;
+          <div>Rp ${formatRupiah(item.nominal)}</div>`;
         listRiwayat.appendChild(card);
       });
     }
-
     function isiDropdownFilter() {
-      const unikBulan = new Set(riwayatData.map(i => i.tanggal.slice(0,7)));
+      const unikBulan = new Set(
+        riwayatData
+          .filter(i => i.tanggal && typeof i.tanggal === "string")
+          .map(i => i.tanggal.slice(0, 7))
+      );
       filterBulanEl.innerHTML = `<option value="all">Semua</option>`;
       [...unikBulan].sort().reverse().forEach(b => {
-        const [y, m] = b.split("-");
         const label = new Date(`${b}-01`).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
         const option = document.createElement("option");
         option.value = b;
@@ -352,7 +303,6 @@
         filterBulanEl.appendChild(option);
       });
     }
-
     function tampilkanRingkasan() {
       let saldo = 0, bulanIni = 0, bulanKemarin = 0;
       const now = new Date();
@@ -373,7 +323,6 @@
       const persen = bulanKemarin !== 0 ? (selisih / bulanKemarin) * 100 : 100;
       hematEl.innerText = `Yey... Kamu hemat ${Math.round(persen)}% atau Rp ${formatRupiah(selisih)}.`;
     }
-
     function tampilkanGrafik() {
       const bulanan = {};
       riwayatData.forEach(item => {
@@ -390,27 +339,16 @@
         type: 'bar',
         data: {
           labels: labels.map(l => {
-            const [y, m] = l.split("-");
-            return `${m}/${y}`;
+            const [y, m] = l.split("-"); return `${m}/${y}`;
           }),
           datasets: [
-            {
-              label: 'Pemasukan',
-              data: dataPemasukan,
-              backgroundColor: '#34A853'
-            },
-            {
-              label: 'Pengeluaran',
-              data: dataPengeluaran,
-              backgroundColor: '#EA4335'
-            }
+            { label: 'Pemasukan', data: dataPemasukan, backgroundColor: '#34A853' },
+            { label: 'Pengeluaran', data: dataPengeluaran, backgroundColor: '#EA4335' }
           ]
         },
         options: {
           responsive: true,
-          plugins: {
-            legend: { position: 'top' }
-          },
+          plugins: { legend: { position: 'top' } },
           scales: {
             y: {
               ticks: {
@@ -429,12 +367,9 @@
 
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('show');
-        }
+        if (entry.isIntersecting) entry.target.classList.add('show');
       });
     }, { threshold: 0.1 });
-
     document.querySelectorAll('.card').forEach(el => observer.observe(el));
 
     tampilkanSemua();
